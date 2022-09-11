@@ -1,12 +1,11 @@
-import logging
-import unittest
 import copy
-import subprocess
+import logging
 import sys
-from src.pylibcklb.mongo.sendJson2Mongo import check_id, apply_need_adaptations, get_arguments
+import unittest
 
 from bson import ObjectId
-import pytest
+
+from src.pylibcklb.mongo.sendJson2Mongo import check_id, apply_need_adaptations, get_arguments
 
 
 class Test(unittest.TestCase):
