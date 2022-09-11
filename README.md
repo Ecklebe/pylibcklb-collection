@@ -12,6 +12,11 @@ with ``py -3 -m pipx install poetry``.
 To create the basic structure of this repository I used poetry (1) as I will use poetry also to replace
 pipenv that I normally use.
 
+## How to prepare the new structure for testing
+- ``poetry add -D pytest``
+- ``poetry add -D coverage[toml]``
+- ``poetry run pytest``
+- ``poetry run coverage run -m pytest && poetry run coverage report -m``
 ## Linked references
 (1) [pipx](https://github.com/pypa/pipx)
 

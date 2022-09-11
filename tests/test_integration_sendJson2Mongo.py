@@ -15,12 +15,12 @@ def create_json_test_file(working_directory: str, json_filename: str, content: d
 class Test(unittest.TestCase):
 
     def test_send_data(self):
-        class TestArguments():
+        class TestArguments:
             working_directory = os.getcwd()
             connection_string = "mongodb://root:example@localhost:27017/"
             database_name = "test"
             collection_name = "test_send_data"
-            json_filename = "../tests/test_data_1.json"
+            json_filename = "test_data_1.json"
             is_replacement = False
 
         arguments = TestArguments()
