@@ -17,6 +17,8 @@ pipenv that I normally use.
 - ``poetry add -D coverage[toml]``
 - ``poetry run pytest``
 - ``poetry run coverage run -m pytest && poetry run coverage report -m``
+- ``poetry run coverage xml``
+- ``poetry run coverage html``
 ## Linked references
 (1) [pipx](https://github.com/pypa/pipx)
 

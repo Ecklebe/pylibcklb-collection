@@ -44,3 +44,9 @@ omit = [".*", "*/site-packages/*"]
 
 [tool.coverage.report]
 fail_under = 100
+
+[tool.coverage.xml]
+output = "coverage/coverage.xml"
+
+[tool.coverage.html]
+directory = "coverage/html"
