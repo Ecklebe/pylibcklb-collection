@@ -5,7 +5,7 @@ import unittest
 
 from bson import ObjectId
 
-from src.pylibcklb.mongo.sendJson2Mongo import check_id, apply_need_adaptations, get_arguments
+from pylibcklb.mongo.sendJson2Mongo import check_id, apply_need_adaptations, get_arguments
 
 
 class Test(unittest.TestCase):
