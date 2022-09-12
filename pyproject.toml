@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pylibcklb-collection"
-version = "0.0.0-post.1+cf0a978"
+version = "0.0.0-post.7+167be53"
 description = ""
 authors = ["Tobias Ecklebe <tobias.ecklebe@outlook.de>"]
 readme = "README.md"
@@ -15,6 +15,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.10"
 pymongo = "^4.2.0"
+bson = "^0.5.10"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.1.3"
