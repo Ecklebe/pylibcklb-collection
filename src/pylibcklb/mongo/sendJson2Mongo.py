@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
+import argparse
+import logging
 import os
 import subprocess
-import logging
-import json
-import argparse
 import sys
 
 try:
@@ -12,6 +11,7 @@ try:
     from bson import ObjectId
     from bson.json_util import loads
 except ModuleNotFoundError:
+    # Do not install the bson package as it is incompatible with pymongo
     subprocess.check_call([sys.executable, "-m", "pip", "install", "pymongo"])
     from pymongo import MongoClient
     from bson import ObjectId
