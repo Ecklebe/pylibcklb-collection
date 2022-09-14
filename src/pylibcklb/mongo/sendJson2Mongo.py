@@ -56,6 +56,12 @@ def create_argumentparser(program_name: str) -> argparse.ArgumentParser:
         action="store_const", dest="loglevel", const=logging.INFO,
     )
     parser.add_argument(
+        '-conn', '--connection-string',
+        help="Connection string to create a connection to the mongodb",
+        action="store", dest="connection_string",
+        default=os.getenv("MONGODB_CONNECTION_STRING")
+    )
+    parser.add_argument(
         '-db', '--database',
         help="Database name which to use",
         action="store", dest="database_name"
@@ -81,12 +87,6 @@ def create_argumentparser(program_name: str) -> argparse.ArgumentParser:
         help="Define a specific name for the json output file",
         action="store", dest="working_directory",
         default=os.getcwd(),
-    )
-    parser.add_argument(
-        '-conn', '--connection-string',
-        help="Connection string to create a connection to the mongodb",
-        action="store", dest="connection_string",
-        default=os.getenv("MONGODB_CONNECTION_STRING")
     )
     return parser
 
@@ -121,8 +121,18 @@ def check_id(data):
     return data
 
 
+def check_schema_version(data):
+    if "schema_version" in data:
+        if isinstance(data["_id"], str):
+            data["schema_version"] = int(data["_id"])
+    else:
+        data["schema_version"] = 1
+    return data
+
+
 def apply_need_adaptations(data):
     data = check_id(data)
+    data = check_schema_version(data)
     return data
 
 
