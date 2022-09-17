@@ -28,6 +28,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install flake8 pytest pipx
           pipx install poetry
+      - name: Check docker installation
+        run: |
+          docker --version
       - name: Install the package with poetry
         run: |
           poetry install

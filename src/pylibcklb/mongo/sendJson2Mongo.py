@@ -3,19 +3,11 @@
 import argparse
 import logging
 import os
-import subprocess
 import sys
 
-try:
-    from pymongo import MongoClient
-    from bson import ObjectId
-    from bson.json_util import loads
-except ModuleNotFoundError:
-    # Do not install the bson package as it is incompatible with pymongo
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "pymongo"])
-    from pymongo import MongoClient
-    from bson import ObjectId
-    from bson.json_util import loads
+from bson import ObjectId
+from bson.json_util import loads
+from pymongo import MongoClient
 
 
 def create_logger(application_name: str, default_level=logging.NOTSET):
@@ -59,7 +51,7 @@ def create_argumentparser(program_name: str) -> argparse.ArgumentParser:
         '-conn', '--connection-string',
         help="Connection string to create a connection to the mongodb",
         action="store", dest="connection_string",
-        default=os.getenv("MONGODB_CONNECTION_STRING")
+        default=os.getenv("MONGODB_CONNECTION_STRING", None)
     )
     parser.add_argument(
         '-db', '--database',
@@ -123,8 +115,8 @@ def check_id(data):
 
 def check_schema_version(data):
     if "schema_version" in data:
-        if isinstance(data["_id"], str):
-            data["schema_version"] = int(data["_id"])
+        if isinstance(data["schema_version"], str):
+            data["schema_version"] = int(data["schema_version"])
     else:
         data["schema_version"] = 1
     return data
@@ -157,8 +149,8 @@ def send_file(args):
 def get_arguments():
     argument_parser = create_argumentparser(os.path.basename(__file__))
     if len(sys.argv) == 1:
-        argument_parser.print_help(sys.stderr)
-        sys.exit(1)
+        argument_parser.print_help()
+        raise SystemExit(1)
     return argument_parser.parse_args()
 
 
@@ -166,10 +158,9 @@ def main():
     arguments = get_arguments()
     program_logger = create_logger(os.path.basename(__file__), arguments.loglevel)
 
-    program_logger.info(f"Send data from file {arguments.json_filename} to the {arguments.database_name} database "
-                        f"and {arguments.collection_name} collection.")
-    send_file(arguments)
-
-
-if __name__ == "__main__":
-    main()
+    if arguments.connection_string:
+        program_logger.info(f"Send data from file {arguments.json_filename} to the {arguments.database_name} database "
+                            f"and {arguments.collection_name} collection.")
+        send_file(arguments)
+    else:
+        program_logger.info(f"No connection string is given")
