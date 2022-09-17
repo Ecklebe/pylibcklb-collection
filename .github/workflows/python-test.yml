@@ -33,7 +33,7 @@ jobs:
           docker --version
       - name: Install the package with poetry
         run: |
-          poetry install
+          poetry install --extras "mongo"
       - name: Run pytest against the installed package
         run: |
-          poetry run pytest
+          poetry run coverage run -m pytest && poetry run coverage combine && poetry run coverage report -m
