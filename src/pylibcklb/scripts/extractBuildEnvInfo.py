@@ -1,5 +1,4 @@
 import argparse
-import json
 import logging
 import os
 import platform
@@ -10,52 +9,14 @@ import sys
 import uuid
 from datetime import datetime
 
-try:
-    import cpuinfo
-except ModuleNotFoundError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "py-cpuinfo"])
-    import cpuinfo
+import cpuinfo
+import psutil
 
-try:
-    import psutil
-except ModuleNotFoundError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "psutil"])
-    import psutil
-
-try:
-    import git
-except ModuleNotFoundError:
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "GitPython"])
-    import git
-
-try:
-    from pymongo import MongoClient
-    from bson import ObjectId
-except ModuleNotFoundError:
-    # Do not install the bson package as it is incompatible with pymongo
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "pymongo"])
-    from pymongo import MongoClient
-    from bson import ObjectId
-
-def create_logger(application_name: str, default_level=logging.NOTSET):
-    # create logger
-    logger = logging.getLogger(application_name)
-    logger.setLevel(default_level)
-
-    # create console handler and set level to debug
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-
-    # create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-    # add formatter to ch
-    ch.setFormatter(formatter)
-
-    # add ch to logger
-    logger.addHandler(ch)
-
-    return logger
+from pylibcklb.json.common import create_json_file
+from pylibcklb.logging.common import create_logger
+from pylibcklb.mongo.common import check_id, check_schema_version, create_connection_to_mongodb, \
+    close_connection_to_mongodb, select_database, select_collection, \
+    run_operation_on_collection
 
 
 def get_size(bytes_in, suffix="B"):
@@ -66,7 +27,7 @@ def get_size(bytes_in, suffix="B"):
         1253656678 => '1.17GB'
     """
     factor = 1024
-    for unit in ["", "K", "M", "G", "T", "P"]:
+    for unit in ["", "K", "M", "G", "T", "P"]:  # pragma: no cover
         if bytes_in < factor:
             return f"{bytes_in:.2f}{unit}{suffix}"
         bytes_in /= factor
@@ -201,10 +162,10 @@ def get_network_information(logger) -> dict:
             interface["name"] = interface_name
             interface["address.family"] = str(address.family)
 
-            if str(address.family) == 'AddressFamily.AF_INET':
+            if str(address.family) == 'AddressFamily.AF_INET':  # pragma: no cover
                 logger.info(f"  IP Address: {address.address}")
                 interface["ip_address"] = address.address
-            elif str(address.family) == 'AddressFamily.AF_PACKET':
+            elif str(address.family) == 'AddressFamily.AF_PACKET':  # pragma: no cover
                 logger.info(f"  MAC Address: {address.address}")
                 interface["mac_address"] = address.address
 
@@ -227,7 +188,7 @@ def get_installed_software(logger) -> list:
     logger.info("=" * 40 + "Installed Software Information" + "=" * 40)
     uname = platform.uname()
     software_list = []
-    if uname.system == "Windows":
+    if uname.system == "Windows":  # pragma: no cover
         data = subprocess.check_output(['wmic', 'product', 'get', 'name'])
         filter_list = ["'", "", "b'Name"]
         for program in str(data).split("\\r\\r\\n"):
@@ -333,12 +294,6 @@ def create_argumentparser(program_name: str) -> argparse.ArgumentParser:
         default=False,
     )
     parser.add_argument(
-        '-json-pretty',
-        help="Write the extracted information in a pretty format to a json file",
-        action="store_const", dest="write_json_output_pretty", const=True,
-        default=False,
-    )
-    parser.add_argument(
         '-json-filename',
         help="Define a specific name for the json output file",
         action="store", dest="json_filename",
@@ -378,81 +333,16 @@ def create_argumentparser(program_name: str) -> argparse.ArgumentParser:
     return parser
 
 
-def create_connection_to_mongodb(connection_string: str) -> MongoClient:
-    return MongoClient(connection_string)
-
-
-def close_connection_to_mongodb(client: MongoClient):
-    client.close()
-
-
-def select_database(client: MongoClient, database_name: str):
-    return client[database_name]
-
-
-def select_collection(database, collection_name: str):
-    return database[collection_name]
-
-
-def check_id(data):
-    if "_id" in data:
-        if isinstance(data["_id"], str):
-            data["_id"] = ObjectId(data["_id"])
-    else:
-        data["_id"] = ObjectId()
-    return data
-
-
-def check_schema_version(data):
-    if "schema_version" in data:
-        if isinstance(data["_id"], str):
-            data["schema_version"] = int(data["_id"])
-    else:
-        data["schema_version"] = 1
-    return data
-
-
 def apply_need_adaptations(data):
     data = check_id(data)
     data = check_schema_version(data)
     return data
 
 
-def run_operation_on_collection(collection, is_replacement, data):
-    if is_replacement:
-        document_id = data.pop("_id")
-        collection.replace_one({"_id": document_id}, data)
-    else:
-        collection.insert_one(data)
-
-
-def check_directory(args, dirpath: str):
-    folder_name = os.path.split(dirpath)[-1]
-    if folder_name not in args.filter:
-        print(dirpath)
-
-
-def walk_through_directory(args, currentdir, levels_to_walk, current_level):
-    for (dirpath, dirnames, filenames) in os.walk(currentdir):
-        for dirname in dirnames:
-            check_directory(args, dirname)
-            if levels_to_walk == current_level:
-                return
-            else:
-                folder_name = os.path.split(dirpath)[-1]
-                if folder_name not in args.filter:
-                    walk_through_directory(args, os.path.join(dirpath, dirname), levels_to_walk, current_level + 1)
-    # else:
-    #    print(f"The folder {folder_name} is in the ignore list")
-
-
 def get_workspace_information(logger, args) -> dict:
     workspace_information = {}
     if args.workspace_information:
         logger.info("=" * 40 + "Workspace Information" + "=" * 40)
-        levels_to_walk = 1
-        current_level = 0
-        walk_through_directory(args, args.working_directory, levels_to_walk, current_level)
 
     return workspace_information
 
@@ -465,17 +355,7 @@ def get_arguments():
     return argument_parser.parse_args()
 
 
-def write_information_to_json(args: argparse.Namespace, information: dict):
-    if args.write_json_output or args.write_json_output_pretty:
-        if args.write_json_output_pretty:
-            indent = 4
-        else:
-            indent = None
-        with open(os.path.join(args.working_directory, args.json_filename), 'w') as f:
-            json.dump(information, f, indent=indent)
-
-
-def send_information_to_mongo(args: argparse.Namespace, data: dict):
+def send_information_to_mongo(args, data: dict):
     client = create_connection_to_mongodb(args.connection_string)
     db = select_database(client, args.database_name)
     collection = select_collection(db, args.collection_name)
@@ -491,10 +371,10 @@ def main():
     collected_information = {"system_information": get_system_information(program_logger, arguments),
                              "workspace_information": get_workspace_information(program_logger, arguments)}
 
-    write_information_to_json(arguments, collected_information)
+    if arguments.write_json_output:
+        create_json_file(arguments.working_directory, arguments.json_filename, collected_information)
 
-    send_information_to_mongo(arguments, collected_information)
-
-
-if __name__ == "__main__":
-    main()
+    if arguments.connection_string:  # pragma: no cover
+        program_logger.info(f"Send data from file {arguments.json_filename} to the {arguments.database_name} database "
+                            f"and {arguments.collection_name} collection.")
+        send_information_to_mongo(arguments, collected_information)

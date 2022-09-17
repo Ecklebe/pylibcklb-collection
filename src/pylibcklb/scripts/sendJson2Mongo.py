@@ -5,30 +5,11 @@ import logging
 import os
 import sys
 
-from bson import ObjectId
-from bson.json_util import loads
-from pymongo import MongoClient
-
-
-def create_logger(application_name: str, default_level=logging.NOTSET):
-    # create logger
-    logger = logging.getLogger(application_name)
-    logger.setLevel(default_level)
-
-    # create console handler and set level to debug
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-
-    # create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-    # add formatter to ch
-    ch.setFormatter(formatter)
-
-    # add ch to logger
-    logger.addHandler(ch)
-
-    return logger
+from pylibcklb.json.common import load_data
+from pylibcklb.logging.common import create_logger
+from pylibcklb.mongo.common import check_id, check_schema_version, create_connection_to_mongodb, \
+    close_connection_to_mongodb, select_database, select_collection, \
+    run_operation_on_collection
 
 
 def create_argumentparser(program_name: str) -> argparse.ArgumentParser:
@@ -83,57 +64,10 @@ def create_argumentparser(program_name: str) -> argparse.ArgumentParser:
     return parser
 
 
-def create_connection_to_mongodb(connection_string: str) -> MongoClient:
-    return MongoClient(connection_string)
-
-
-def close_connection_to_mongodb(client: MongoClient):
-    client.close()
-
-
-def select_database(client: MongoClient, database_name: str):
-    return client[database_name]
-
-
-def select_collection(database, collection_name: str):
-    return database[collection_name]
-
-
-def load_data(working_directory: str, json_filename: str):
-    with open(os.path.join(working_directory, json_filename), 'r') as f:
-        return loads(f.read())
-
-
-def check_id(data):
-    if "_id" in data:
-        if isinstance(data["_id"], str):
-            data["_id"] = ObjectId(data["_id"])
-    else:
-        data["_id"] = ObjectId()
-    return data
-
-
-def check_schema_version(data):
-    if "schema_version" in data:
-        if isinstance(data["schema_version"], str):
-            data["schema_version"] = int(data["schema_version"])
-    else:
-        data["schema_version"] = 1
-    return data
-
-
 def apply_need_adaptations(data):
     data = check_id(data)
     data = check_schema_version(data)
     return data
-
-
-def run_operation_on_collection(collection, is_replacement, data):
-    if is_replacement:
-        document_id = data.pop("_id")
-        collection.replace_one({"_id": document_id}, data)
-    else:
-        collection.insert_one(data)
 
 
 def send_file(args):

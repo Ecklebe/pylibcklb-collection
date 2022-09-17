@@ -1,26 +1,13 @@
-import json
 import os
 
 from bson import ObjectId
 from pytest_mock_resources import create_mongo_fixture
 
-from pylibcklb.mongo.sendJson2Mongo import send_file
+from pylibcklb.json.common import create_json_file
+from pylibcklb.mongo.common import create_connection_string
+from pylibcklb.scripts.sendJson2Mongo import send_file
 
 mongo = create_mongo_fixture()
-
-
-def create_json_test_file(working_directory: str, json_filename: str, content: dict):
-    with open(os.path.join(working_directory, json_filename), "w") as outfile:
-        json.dump(content, outfile)
-
-
-def create_connection_string(mongo_credentials) -> str:
-    host = mongo_credentials.host
-    port = mongo_credentials.port
-    username = mongo_credentials.username
-    password = mongo_credentials.password
-    auth_source = mongo_credentials.database
-    return f"mongodb://{username}:{password}@{host}:{port}/?authSource={auth_source}"
 
 
 def test_send_data(mongo):
@@ -41,7 +28,7 @@ def test_send_data(mongo):
         "schema_version": 1,
         "data": "tests"
     }
-    create_json_test_file(arguments.working_directory, arguments.json_filename, test_file_content_1)
+    create_json_file(arguments.working_directory, arguments.json_filename, test_file_content_1)
     send_file(arguments)
     os.remove(os.path.join(arguments.working_directory, arguments.json_filename))
 
@@ -53,6 +40,6 @@ def test_send_data(mongo):
         "data": "tests",
         "more_data": "This is more data from the document replacement"
     }
-    create_json_test_file(arguments.working_directory, arguments.json_filename, test_file_content_2)
+    create_json_file(arguments.working_directory, arguments.json_filename, test_file_content_2)
     send_file(arguments)
     os.remove(os.path.join(arguments.working_directory, arguments.json_filename))

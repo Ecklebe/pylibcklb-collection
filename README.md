@@ -21,7 +21,7 @@ pipenv that I normally use.
 
 ## How to run the testing
 
-- ``poetry install --extras "mongo"``
+- ``poetry install --all-extras``
 - ``poetry run pytest``
 - ``poetry run coverage run -m pytest && poetry run coverage report -m``
 - ``poetry run coverage xml``
