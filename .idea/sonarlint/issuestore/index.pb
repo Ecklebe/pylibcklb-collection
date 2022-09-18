@@ -24,5 +24,3 @@ N
 src/pylibcklb/json/__init__.py,6\3\63adc7fc6005b657b8504ebc7e27b78f032543ec
 L
 src/pylibcklb/json/common.py,7\f\7f2de2f647b432e40c054d7cf89935e238709849
-Q
-!.github/workflows/python-test.yml,d\2\d2fe80b32f7b3f259e0e2796733617e7bc26191d

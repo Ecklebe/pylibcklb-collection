@@ -1,10 +1,13 @@
+![Python Test on Github](https://github.com/Ecklebe/pylibcklb-collection/actions/workflows/python-test.yml/badge.svg?event=push&branch=master)
+
 # pylibcklb-collection
 
 This repo allows me to play with the newer ways to package and distribute a python package.
 Maybe this repo will integrate and replace the repository pylibcklb.
 
 ## How I started here
-Basic requirement is a python installation. In my case Python 3.10. From there I installed PipX (1) 
+
+Basic requirement is a python installation. In my case Python 3.10. From there I installed PipX (1)
 with ``py -3 -m pip install --user pipx`` and adapt my PATH with ``py -3 -m pipx ensurepath``. After that I installed
 Poetry
 with ``py -3 -m pipx install poetry``.
@@ -32,3 +35,6 @@ pipenv that I normally use.
 (1) [pipx](https://github.com/pypa/pipx)
 
 (2) [Poetry Basic Usage](https://python-poetry.org/docs/basic-usage/)
+
+(
+3) [Github Actions - Migrate from Jenkins](https://docs.github.com/en/actions/migrating-to-github-actions/migrating-from-jenkins-to-github-actions)
