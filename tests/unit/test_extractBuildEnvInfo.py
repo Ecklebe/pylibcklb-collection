@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 import unittest
+from unittest.mock import patch
 
 import pytest
 from bson import ObjectId
@@ -35,16 +36,55 @@ class Test(unittest.TestCase):
         arguments = get_arguments()
         assert arguments.loglevel == logging.INFO
 
-    def test_main(self):
-        sys.argv = ["tests", "-v"]
+    @patch("pylibcklb.scripts.extractBuildEnvInfo.get_arguments")
+    def test_main(self, mock_get_arguments):
+        class TestArguments:
+            working_directory = os.getcwd()
+            connection_string = None
+            database_name = "test"
+            collection_name = "test_send_data"
+            json_filename = "test_data_1.json"
+            system_information = False
+            workspace_information = False
+            write_json_output = False
+            loglevel = logging.WARNING
+            filter = []
+
+        mock_get_arguments.return_value = TestArguments()
         main()
 
-    def test_get_system_information(self):
-        sys.argv = ["tests", "-v", "-esi"]
+    @patch("pylibcklb.scripts.extractBuildEnvInfo.get_arguments")
+    def test_get_system_information(self, mock_get_arguments):
+        class TestArguments:
+            working_directory = os.getcwd()
+            connection_string = None
+            database_name = "test"
+            collection_name = "test_send_data"
+            json_filename = "test_data_1.json"
+            system_information = True
+            workspace_information = False
+            write_json_output = False
+            loglevel = logging.WARNING
+            filter = []
+
+        mock_get_arguments.return_value = TestArguments()
         main()
 
-    def test_save_to_json(self):
-        sys.argv = ["tests", "-v", "-json"]
+    @patch("pylibcklb.scripts.extractBuildEnvInfo.get_arguments")
+    def test_save_to_json(self, mock_get_arguments):
+        class TestArguments:
+            working_directory = os.getcwd()
+            connection_string = None
+            database_name = "test"
+            collection_name = "test_send_data"
+            json_filename = "build-env.json"
+            system_information = False
+            workspace_information = False
+            write_json_output = True
+            loglevel = logging.WARNING
+            filter = []
+
+        mock_get_arguments.return_value = TestArguments()
         main()
         os.remove(os.path.join(os.getcwd(), "build-env.json"))
 

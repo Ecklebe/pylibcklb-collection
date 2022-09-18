@@ -10,13 +10,13 @@ from pylibcklb.scripts.extractBuildEnvInfo import send_information_to_mongo, mai
 mongo = create_mongo_fixture()
 
 
-def test_get_system_information():
-    sys.argv = ["tests", "-v", "-esi"]
+def test_get_system_information(mongo):
+    sys.argv = ["tests", "-v", "-esi", f"-conn={create_connection_string(mongo.pmr_credentials)}"]
     main()
 
 
-def test_get_system_information():
-    sys.argv = ["tests", "-v", "-ewi"]
+def test_get_workspace_information(mongo):
+    sys.argv = ["tests", "-v", "-ewi", f"-conn={create_connection_string(mongo.pmr_credentials)}"]
     main()
 
 

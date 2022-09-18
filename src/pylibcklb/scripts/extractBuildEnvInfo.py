@@ -12,25 +12,12 @@ from datetime import datetime
 import cpuinfo
 import psutil
 
+from pylibcklb.calculation.common import get_size
 from pylibcklb.json.common import create_json_file
 from pylibcklb.logging.common import create_logger
 from pylibcklb.mongo.common import check_id, check_schema_version, create_connection_to_mongodb, \
     close_connection_to_mongodb, select_database, select_collection, \
     run_operation_on_collection
-
-
-def get_size(bytes_in, suffix="B"):
-    """
-    Scale bytes to its proper format
-    e.g:
-        1253656 => '1.20MB'
-        1253656678 => '1.17GB'
-    """
-    factor = 1024
-    for unit in ["", "K", "M", "G", "T", "P"]:  # pragma: no cover
-        if bytes_in < factor:
-            return f"{bytes_in:.2f}{unit}{suffix}"
-        bytes_in /= factor
 
 
 def get_cpu_information(logger):
@@ -119,7 +106,7 @@ def get_disk_information(logger) -> dict:
         partition_dict["fstype"] = partition.fstype
         try:
             partition_usage = psutil.disk_usage(partition.mountpoint)
-        except PermissionError:
+        except PermissionError:  # pragma: no cover
             # this can be catched due to the disk that
             # isn't ready
             continue
@@ -374,7 +361,7 @@ def main():
     if arguments.write_json_output:
         create_json_file(arguments.working_directory, arguments.json_filename, collected_information)
 
-    if arguments.connection_string:  # pragma: no cover
+    if arguments.connection_string:
         program_logger.info(f"Send data from file {arguments.json_filename} to the {arguments.database_name} database "
                             f"and {arguments.collection_name} collection.")
         send_information_to_mongo(arguments, collected_information)
