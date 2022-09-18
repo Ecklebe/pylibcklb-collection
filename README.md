@@ -1,4 +1,5 @@
-![Python Test on Github](https://github.com/Ecklebe/pylibcklb-collection/actions/workflows/python-test.yml/badge.svg?event=push&branch=master)
+[![Test and Coverage](https://github.com/Ecklebe/pylibcklb-collection/actions/workflows/python-test.yml/badge.svg?branch=master)](https://github.com/Ecklebe/pylibcklb-collection/actions/workflows/python-test.yml)
+[![Dependency Review](https://github.com/Ecklebe/pylibcklb-collection/actions/workflows/dependency-review.yml/badge.svg)](https://github.com/Ecklebe/pylibcklb-collection/actions/workflows/dependency-review.yml)
 
 # pylibcklb-collection
 
