@@ -21,7 +21,7 @@ extractBuildEnvInfo = 'pylibcklb.scripts.extractBuildEnvInfo:main'
 [tool.poetry.dependencies]
 python = "^3.10"
 pymongo = { version = "^4.2.0", optional = true }
-GitPython = { version = "^3.1.27", optional = true }
+GitPython = { version = "^3.1.30", optional = true }
 psutil = { version = "^5.9.2", optional = true }
 py-cpuinfo = { version = "^8.0.0", optional = true }
 
